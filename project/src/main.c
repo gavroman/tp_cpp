@@ -1,25 +1,30 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include "task.h"
 
 int main(int argc, char const *argv[]) {
     puts("Please enter action");
     puts("1 : Create task:");
     puts("2 : Show sorted tasks");
+
+    Task_manager * tasks = create_task_manager();
     int command = 0;
     while (scanf("%d", &command) == 1) {
-        switch(command) {
+        switch (command) {
             case 1:
-                createTask();
+                add_task(&tasks, create_task());
                 break;
-
             case 2:
-                outputTasks();
+                output_tasks(tasks);
                 break;
 
             default:
                 puts("Wrong command");
         }
+        puts("Please enter action");
+        puts("1 : Create task:");
+        puts("2 : Show sorted tasks");
     }
 
+    free_task_manager_data(tasks);
     return 0;
 }
