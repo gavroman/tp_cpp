@@ -9,5 +9,9 @@ os:
 compiler:
     - gcc
 
+install:
+    - sudo apt-get update
+    - sudo apt-get install libstdc++6
+
 script:
     - ./linters/run.sh
