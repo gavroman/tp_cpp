@@ -1,6 +1,9 @@
 #ifndef PROJECT_INCLUDE_TASK_H_
 #define PROJECT_INCLUDE_TASK_H_
 
+#define TASK_OK 0
+#define TASK_FAILED -1
+
 typedef struct date_struct Date;
 struct date_struct {
     int year;
@@ -26,11 +29,11 @@ struct task_manager_struct {
 Task_manager * create_task_manager();
 Task * create_task();
 
-void add_task(Task_manager ** task_manager, Task * task);
-void sort_tasks(Task_manager * task_manager);
-void output_tasks(Task_manager * task_manager);
+int add_task(Task_manager ** task_manager, Task * task);
+int sort_tasks(Task_manager * task_manager);
+int output_sorted_tasks(Task_manager * task_manager);
 
-void free_task_manager_data(Task_manager * task_manager);
+int free_task_manager_data(Task_manager * task_manager);
 
 
 #endif  // PROJECT_INCLUDE_TASK_H_

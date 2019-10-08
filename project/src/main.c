@@ -6,15 +6,15 @@ int main(int argc, char const *argv[]) {
     puts("1 : Create task:");
     puts("2 : Show sorted tasks");
 
-    Task_manager * tasks = create_task_manager();
+    Task_manager * task_manager = create_task_manager();
     int command = 0;
     while (scanf("%d", &command) == 1) {
         switch (command) {
             case 1:
-                add_task(&tasks, create_task());
+                add_task(&task_manager, create_task());
                 break;
             case 2:
-                output_tasks(tasks);
+                output_sorted_tasks(task_manager);
                 break;
 
             default:
@@ -25,6 +25,6 @@ int main(int argc, char const *argv[]) {
         puts("2 : Show sorted tasks");
     }
 
-    free_task_manager_data(tasks);
+    free_task_manager_data(task_manager);
     return 0;
 }
