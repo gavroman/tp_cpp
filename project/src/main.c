@@ -3,8 +3,9 @@
 
 int main(int argc, char const *argv[]) {
     puts("Please enter action");
-    puts("1 : Create task:");
-    puts("2 : Show sorted tasks");
+    puts("1      : Create task:");
+    puts("2      : Show sorted tasks");
+    puts("CTRL^D : exit");
 
     Task_manager * task_manager = create_task_manager();
     int command = 0;

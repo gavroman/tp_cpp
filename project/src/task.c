@@ -55,49 +55,51 @@ int add_task(Task_manager ** task_manager, Task * task) {
     return TASK_OK;
 }
 
-int comparator(const void * task1, const void * task2) {
-    printf("Task 1 priority %d\n", ((Task*)task1)->priority);
-    //printf("Task 2 %d\n", task2->id);
-    // if (task1->priority > task2->priority) {
-    //     return 1;
-    // } else if (task1->priority < task2->priority) {
-    //     return -1;
-    // }
+int comparator(const void * elem1, const void * elem2) {
+    Task * task1 = *(Task **)elem1;
+    Task * task2 = *(Task **)elem2;
 
-    // // need to compare date
-    // if (task1->date.year < task2->date.year) {
-    //     return 1;
-    // } else if (task1->date.year > task2->date.year) {
-    //     return -1;
-    // }
+    if (task1->priority < task2->priority) {
+        return 1;
+    } else if (task1->priority > task2->priority) {
+        return -1;
+    }
 
-    // if (task1->date.month < task2->date.month) {
-    //     return 1;
-    // } else if (task1->date.month > task2->date.month) {
-    //     return -1;
-    // }
+    // need to compare date
+    if (task1->date.year > task2->date.year) {
+        return 1;
+    } else if (task1->date.year < task2->date.year) {
+        return -1;
+    }
 
-    // if (task1->date.day < task2->date.day) {
-    //     return 1;
-    // } else {
-    //     return -1;
-    // }
+    if (task1->date.month > task2->date.month) {
+        return 1;
+    } else if (task1->date.month < task2->date.month) {
+        return -1;
+    }
+
+    if (task1->date.day > task2->date.day) {
+        return 1;
+    } else if (task1->date.day < task2->date.day) {
+        return -1;
+    }
     return 0;
 }
 
-int sort_tasks(Task_manager * task_manager) {
-    printf("%d\n", task_manager->tasks[1]->priority);
-    if (!task_manager) {
-        return TASK_FAILED;
-    }
-    if (!task_manager->tasks) {
+int print_date(Date * date) {
+    if (!date) {
         return TASK_FAILED;
     }
 
-    qsort(task_manager->tasks,
-          task_manager->real_size,
-          sizeof(Task*),
-          comparator);
+    printf("Date: ");
+    if (date->day < 10) {
+        printf("0");
+    }
+    printf("%d.", date->day);
+    if (date->month < 10) {
+        printf("0");
+    }
+    printf("%d.%d\n", date->month, date->year);
     return TASK_OK;
 }
 
@@ -109,11 +111,7 @@ int output_sorted_tasks(Task_manager * task_manager) {
         return TASK_FAILED;
     }
 
-    //sort_tasks(task_manager);
-    qsort(task_manager->tasks,
-          task_manager->real_size,
-          sizeof(Task*),
-          comparator);
+    qsort(task_manager->tasks, task_manager->real_size, sizeof(Task*), comparator);
     for (int i = 0; i != task_manager->real_size; i++) {
         if (!task_manager->tasks[i]) {
             return TASK_FAILED;
@@ -122,14 +120,13 @@ int output_sorted_tasks(Task_manager * task_manager) {
             return TASK_FAILED;
         }
 
-        puts("_________________________________________");
         Task * task = task_manager->tasks[i];
-        printf("Task ID: %d\n", task->id);
+        printf("\nTask ID: %d\n", task->id);
         printf("Priority: %d\n", task->priority);
         printf("Description: %s\n", task->description);
-        printf("Date: %d.%d.%d\n", task->date.day, task->date.month, task->date.year);
+        print_date(&task->date);
     }
-    puts("_________________________________________");
+    putchar('\n');
     return TASK_OK;
 }
 
