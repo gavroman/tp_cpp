@@ -1,13 +1,11 @@
-dist:     trusty
+dist:     xenial
 sudo:     required
 
 language: c
 
-os:
-    - linux
+os: linux
 
-compiler:
-    - gcc
+compiler: gcc
 
 install:
     - sudo apt-get update
