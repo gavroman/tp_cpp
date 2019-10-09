@@ -13,3 +13,5 @@ install:
 
 script:
     - ./linters/run.sh
+    - cmake .
+    - make
