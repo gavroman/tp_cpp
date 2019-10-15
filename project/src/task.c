@@ -3,95 +3,23 @@
 #include <memory.h>
 #include "task.h"
 
-Task_manager * create_task_manager() {
-    Task_manager * task_mngr = (Task_manager *)malloc(sizeof(Task_manager));
+task_manager * create_task_manager() {
+    task_manager * task_mngr = (task_manager *)malloc(sizeof(task_manager));
+    if (task_mngr == NULL) {
+        return NULL;
+    }
     task_mngr->real_size = 0;
     task_mngr->size = 4;
-    task_mngr->tasks = (Task **)malloc(task_mngr->size * sizeof(Task*));
+    task_mngr->tasks = (task **)malloc(task_mngr->size * sizeof(task*));
+    if (task_mngr->tasks == NULL) {
+        free(task_mngr);
+        return NULL;
+    }
     return task_mngr;
 }
 
-Task * create_task() {
-    Task * task = (Task *)malloc(sizeof(Task));
-
-    puts("Enter task ID :");
-    scanf("%d", &task->id);
-
-    puts("Enter task priority :");
-    scanf("%d", &task->priority);
-
-    puts("Enter task description :");
-    getchar();  // removing '\n' after scanf() in stdin
-    task->description = NULL;
-    size_t len = 0;
-    ssize_t nread = getline(&task->description, &len, stdin);
-    task->description[nread - 1] = '\0';
-
-    puts("Enter task creation date in format DD MM YYYY :");
-    scanf("%d%d%d", &task->date.day, &task->date.month, &task->date.year);
-
-    return task;
-}
-
-int add_task(Task_manager ** task_manager, Task * task) {
-    if (!task_manager || !task) {
-        return TASK_FAILED;
-    }
-    if (!(*task_manager)->tasks) {
-        return TASK_FAILED;
-    }
-
-    if ((*task_manager)->real_size == (*task_manager)->size) {
-        (*task_manager)->size *= 2;
-        Task ** new_tasks = (Task **)malloc((*task_manager)->size * sizeof(Task*));
-        memcpy(new_tasks, (*task_manager)->tasks, (*task_manager)->real_size * sizeof(Task*));
-        free((*task_manager)->tasks);
-        (*task_manager)->tasks = new_tasks;
-    }
-
-    (*task_manager)->tasks[(*task_manager)->real_size] = task;
-    (*task_manager)->real_size++;
-
-    return TASK_OK;
-}
-
-int comparator(const void * elem1, const void * elem2) {
-    Task * task1 = *(Task **)elem1;
-    Task * task2 = *(Task **)elem2;
-
-    if (task1->priority < task2->priority) {
-        return 1;
-    } else if (task1->priority > task2->priority) {
-        return -1;
-    }
-
-    // need to compare date
-    if (task1->date.year > task2->date.year) {
-        return 1;
-    } else if (task1->date.year < task2->date.year) {
-        return -1;
-    }
-
-    if (task1->date.month > task2->date.month) {
-        return 1;
-    } else if (task1->date.month < task2->date.month) {
-        return -1;
-    }
-
-    if (task1->date.day > task2->date.day) {
-        return 1;
-    } else if (task1->date.day < task2->date.day) {
-        return -1;
-    }
-    return 0;
-}
-
-int print_date(Date * date) {
-    if (!date) {
-        return TASK_FAILED;
-    }
-
-    printf("Date: ");
+int print_date(const task_date * date) {
+    printf("task_date: ");
     if (date->day < 10) {
         printf("0");
     }
@@ -103,58 +31,141 @@ int print_date(Date * date) {
     return TASK_OK;
 }
 
-int output_sorted_tasks(Task_manager * task_manager) {
-    if (!task_manager) {
+task * create_task() {
+    task * tsk = (task *)malloc(sizeof(task));
+    if (tsk == NULL) {
+        return NULL;
+    }
+
+    puts("Enter tsk ID :");
+    scanf("%d", &tsk->id);
+
+    puts("Enter tsk priority :");
+    scanf("%d", &tsk->priority);
+
+    puts("Enter tsk description :");
+    getchar();  // removing '\n' after scanf() in stdin
+    tsk->description = NULL;
+    size_t len = 0;
+    ssize_t nread = getline(&tsk->description, &len, stdin);
+    if (nread) {
+        tsk->description[nread - 1] = '\0';
+    }
+
+    puts("Enter tsk creation date in format DD MM YYYY :");
+    scanf("%d%d%d", &tsk->date.day, &tsk->date.month, &tsk->date.year);
+    tsk->date.print_func = print_date;
+
+    return tsk;
+}
+
+int add_task(task_manager ** manager, task * tsk) {
+    if (!manager || !tsk) {
         return TASK_FAILED;
     }
-    if (!task_manager->tasks) {
+    if (!(*manager)->tasks) {
         return TASK_FAILED;
     }
 
-    qsort(task_manager->tasks, task_manager->real_size, sizeof(Task*), comparator);
-    for (int i = 0; i != task_manager->real_size; i++) {
-        if (!task_manager->tasks[i]) {
+    if ((*manager)->real_size == (*manager)->size) {
+        (*manager)->size *= 2;
+        task ** new_tasks = (task **)malloc((*manager)->size * sizeof(task*));
+        memcpy(new_tasks, (*manager)->tasks, (*manager)->real_size * sizeof(task*));
+        free((*manager)->tasks);
+        (*manager)->tasks = new_tasks;
+    }
+
+    (*manager)->tasks[(*manager)->real_size] = tsk;
+    (*manager)->real_size++;
+
+    return TASK_OK;
+}
+
+int comparator(const task ** task1, const task ** task2) {
+    const int left_more = -1;
+    const int right_more = 1;
+    const int equal = 0;
+    if ((*task1)->priority < (*task2)->priority) {
+        return right_more;
+    } else if ((*task1)->priority > (*task2)->priority) {
+        return left_more;
+    }
+
+    // need to compare date
+    if ((*task1)->date.year > (*task2)->date.year) {
+        return right_more;
+    } else if ((*task1)->date.year < (*task2)->date.year) {
+        return left_more;
+    }
+
+    if ((*task1)->date.month > (*task2)->date.month) {
+        return right_more;
+    } else if ((*task1)->date.month < (*task2)->date.month) {
+        return left_more;
+    }
+
+    if ((*task1)->date.day > (*task2)->date.day) {
+        return right_more;
+    } else if ((*task1)->date.day < (*task2)->date.day) {
+        return left_more;
+    }
+    return equal;
+}
+
+int output_sorted_tasks(const task_manager * manager) {
+    if (!manager) {
+        return TASK_FAILED;
+    }
+    if (!manager->tasks) {
+        return TASK_FAILED;
+    }
+
+    qsort(manager->tasks, manager->real_size, sizeof(task*), comparator);
+    for (int i = 0; i != manager->real_size; i++) {
+        if (!manager->tasks[i]) {
             return TASK_FAILED;
         }
-        if (!task_manager->tasks[i]->description) {
+        if (!manager->tasks[i]->description) {
             return TASK_FAILED;
         }
 
-        Task * task = task_manager->tasks[i];
-        printf("\nTask ID: %d\n", task->id);
-        printf("Priority: %d\n", task->priority);
-        printf("Description: %s\n", task->description);
-        print_date(&task->date);
+        task * tsk = manager->tasks[i];
+        printf("\nTask ID: %d\n", tsk->id);
+        printf("Priority: %d\n", tsk->priority);
+        printf("Description: %s\n", tsk->description);
+        tsk->date.print_func(&tsk->date);
     }
     putchar('\n');
     return TASK_OK;
 }
 
-int free_task_data(Task * task) {
-    if (!task) {
+int free_task_data(task * tsk) {
+    if (!tsk) {
         return TASK_FAILED;
     }
-    if (!task->description) {
-        free(task);
+    if (!tsk->description) {
+        free(tsk);
         return TASK_FAILED;
     }
-    free(task->description);
-    free(task);
+
+    free(tsk->description);
+    free(tsk);
+    return TASK_OK;
 }
 
-int free_task_manager_data(Task_manager * task_manager) {
-    if (!task_manager) {
+int free_task_manager_data(task_manager * manager) {
+    if (!manager) {
         return TASK_FAILED;
     }
-    if (!task_manager->tasks) {
-        free(task_manager);
+    if (!manager->tasks) {
+        free(manager);
         return TASK_FAILED;
     }
 
-    for (int i = 0; i != task_manager->real_size; i++) {
-        free_task_data(task_manager->tasks[i]);
+    for (int i = 0; i != manager->real_size; i++) {
+        free_task_data(manager->tasks[i]);
     }
-    free(task_manager->tasks);
-    free(task_manager);
+    free(manager->tasks);
+    free(manager);
     return TASK_OK;
 }

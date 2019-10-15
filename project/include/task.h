@@ -4,37 +4,38 @@
 #define TASK_OK 0
 #define TASK_FAILED -1
 
-typedef struct date_struct Date;
+typedef struct date_struct task_date;
 struct date_struct {
     int year;
     int month;
     int day;
+    int (*print_func)(const task_date * date);
 };
 
-typedef struct task_struct Task;
+typedef struct task_struct task;
 struct task_struct {
     int id;
     int priority;
     char * description;
-    Date date;
+    task_date date;
 };
 
-typedef struct task_manager_struct Task_manager;
+typedef struct task_manager_struct task_manager;
 struct task_manager_struct {
-    Task ** tasks;  // pointer to array of pointers to struct task
+    task ** tasks;  // pointer to array of pointers to struct tsk
     int size;
     int real_size;
 };
 
-Task_manager * create_task_manager();
-Task * create_task();
+task_manager * create_task_manager();
+task * create_task();
 
-int add_task(Task_manager ** task_manager, Task * task);
-int sort_tasks(Task_manager * task_manager);
-int output_sorted_tasks(Task_manager * task_manager);
+int add_task(task_manager ** manager, task * tsk);
+int sort_tasks(task_manager * manager);
+int output_sorted_tasks(const task_manager * manager);
 
-int free_task_data(Task * task);
-int free_task_manager_data(Task_manager * task_manager);
+int free_task_data(task * tsk);
+int free_task_manager_data(task_manager * manager);
 
 
 #endif  // PROJECT_INCLUDE_TASK_H_

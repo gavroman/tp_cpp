@@ -5,49 +5,46 @@ extern "C" {
 }
 
 // case_1
-TEST(Task, create_task) {
+TEST(task, create_task) {
     stdin = freopen("tests/data/in_1.txt", "r", stdin);
 
-    Task * task = nullptr;
-    try {
-        task = create_task();
-    } catch (const std::exception& e) {
-        GTEST_FAIL() << e.what();
-    }
-    EXPECT_EQ(task->id, 201314);
-    EXPECT_EQ(task->priority, 10);
-    EXPECT_EQ(std::string(task->description), "Very important task");
-    EXPECT_EQ(task->date.day, 9);
-    EXPECT_EQ(task->date.month, 9);
-    EXPECT_EQ(task->date.year, 1999);
+    task * tsk = create_task();
+    EXPECT_EQ(tsk->id, 201314);
+    EXPECT_EQ(tsk->priority, 10);
+    EXPECT_EQ(std::string(tsk->description), "Very important task");
+    EXPECT_EQ(tsk->date.day, 9);
+    EXPECT_EQ(tsk->date.month, 9);
+    EXPECT_EQ(tsk->date.year, 1999);
 
-    free_task_data(task);
+    EXPECT_EQ(free_task_data(tsk), TASK_OK);
     fclose(stdin);
 }
 
-TEST(Task_manager, create_task_manager) {  // case_0
-    Task_manager * task_mngr = nullptr;
-    try {
-        task_mngr = create_task_manager();
-    } catch (const std::exception& e) {
-        GTEST_FAIL() << e.what();
-    }
-    free_task_manager_data(task_mngr);
+// case_0 testing free
+TEST(task_manager, create_task_manager) {
+    task_manager * task_mngr = create_task_manager();
+
+    EXPECT_EQ(free_task_manager_data(task_mngr), TASK_OK);
+    EXPECT_EQ(free_task_manager_data(nullptr), TASK_FAILED);
+    EXPECT_EQ(free_task_data(nullptr), TASK_FAILED);
+
     return;
 }
 
 // case_2 adding 2 tasks in task manager
-TEST(Task_manager, add_task) {
+TEST(task_manager, add_task) {
     stdin = freopen("tests/data/in_2.txt", "r", stdin);
 
-    Task_manager * task_mngr = nullptr;
-    try {
-        task_mngr = create_task_manager();
-        add_task(&task_mngr, create_task());
-        add_task(&task_mngr, create_task());
-    } catch (const std::exception& e) {
-        GTEST_FAIL() << e.what();
-    }
+    task * task1 = create_task();
+    task * task2 = create_task();
+    task_manager * task_mngr = create_task_manager();
+
+    EXPECT_EQ(add_task(&task_mngr, nullptr), TASK_FAILED);
+    EXPECT_EQ(add_task(nullptr, task1), TASK_FAILED);
+
+    EXPECT_EQ(add_task(&task_mngr, task1), TASK_OK);
+    EXPECT_EQ(add_task(&task_mngr, task2), TASK_OK);
+
     // task1 struct
     EXPECT_EQ(task_mngr->tasks[0]->id, 201314);
     EXPECT_EQ(task_mngr->tasks[0]->priority, 10);
@@ -63,36 +60,32 @@ TEST(Task_manager, add_task) {
     EXPECT_EQ(task_mngr->tasks[1]->date.month, 12);
     EXPECT_EQ(task_mngr->tasks[1]->date.year, 1998);
 
-    free_task_manager_data(task_mngr);
+    EXPECT_EQ(free_task_manager_data(task_mngr), TASK_OK);
+
     fclose(stdin);
 }
 
 // case_3 sorting tasks on priority
-TEST(Task_manager, sort_tasks) {
+TEST(task_manager, sort_tasks) {
+    EXPECT_EQ(output_sorted_tasks(nullptr), TASK_FAILED);
+
     stdin = freopen("tests/data/in_3.txt", "r", stdin);
-        Task_manager * task_mngr = nullptr;
-    try {
-        task_mngr = create_task_manager();
-        for (int i = 0; i != 4; i++) {
-            add_task(&task_mngr, create_task());
-        }
-        output_sorted_tasks(task_mngr);
-    } catch (const std::exception& e) {
-        GTEST_FAIL() << e.what();
+
+    task_manager * task_mngr = create_task_manager();
+    for (int i = 0; i != 4; i++) {
+        EXPECT_EQ(add_task(&task_mngr, create_task()), TASK_OK);
     }
+    EXPECT_EQ(output_sorted_tasks(task_mngr), TASK_OK);
+
     EXPECT_EQ(task_mngr->tasks[0]->id, 412345);
     EXPECT_EQ(task_mngr->tasks[1]->id, 2323);
     EXPECT_EQ(task_mngr->tasks[2]->id, 189);
     EXPECT_EQ(task_mngr->tasks[3]->id, 33233);
 
-    try {
-        for (int i = 0; i != 11; i++) {
-            add_task(&task_mngr, create_task());
-        }
-        output_sorted_tasks(task_mngr);
-    } catch (const std::exception& e) {
-        GTEST_FAIL() << e.what();
+    for (int i = 0; i != 14; i++) {
+        EXPECT_EQ(add_task(&task_mngr, create_task()), TASK_OK);
     }
+    EXPECT_EQ(output_sorted_tasks(task_mngr), TASK_OK);
 
     EXPECT_EQ(task_mngr->tasks[0]->id, 6876);
     EXPECT_EQ(task_mngr->tasks[1]->id, 656);
@@ -110,7 +103,7 @@ TEST(Task_manager, sort_tasks) {
     EXPECT_EQ(task_mngr->tasks[13]->id, 33233);
     EXPECT_EQ(task_mngr->tasks[14]->id, 7678);
 
-    free_task_manager_data(task_mngr);
+    EXPECT_EQ(free_task_manager_data(task_mngr), TASK_OK);
     fclose(stdin);
 }
 
@@ -119,6 +112,4 @@ int main(int argc, char *argv[]) {
     // (and Google Test) before running the tests.
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
-    std::cout << "fdsgdsgdsgdsgdsg" << std::endl;
-    return 0;
 }
