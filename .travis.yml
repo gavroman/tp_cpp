@@ -15,6 +15,7 @@ install:
     - sudo apt-get update
     - sudo apt-get install cmake
     - sudo apt-get install lcov
+    - sudo apt-get install valgrind
     # Google tests
     - sudo apt-get install libgtest-dev
     - cd /usr/src/gtest
@@ -24,12 +25,13 @@ install:
 
 before_script:
     - cd /home/travis/build/gavroman/tp_cpp
-    - ./3rdparty/linters/run.sh
+    - ./3rdparty/linters/run.sh || travis_terminate 1;
 
 script:
-    - cmake .
-    - make
-    - ./gtests.out
+    - cmake . || travis_terminate 1;
+    - make || travis_terminate 1;
+    - ./gtests.out || travis_terminate 1;
+    - valgrind ./gtests.out || travis_terminate 1;
 
 after_script:
     - lcov --capture --directory ./CMakeFiles/naive_library.dir/project/naive --directory CMakeFiles/parallel_library.dir/project/parallel --output-file coverage.info

@@ -21,11 +21,16 @@ add_library(naive_library STATIC ${NAIVE_LIB_SOURCE_FILES})
 set(PARALLEL_LIB_SOURCE_FILES ${PARALLEL_DIR}/parallel.c)
 add_library(parallel_library SHARED ${PARALLEL_LIB_SOURCE_FILES})
 
+add_executable(main_naive.out project/main_naive.c)
+target_link_libraries(main_naive.out naive_library)
+
+add_executable(main_parallel.out project/main_parallel.c)
+target_link_libraries(main_parallel.out parallel_library)
+
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
-
 add_executable(gtests.out project/test/gtests.cpp)
 target_link_libraries(gtests.out ${GTEST_LIBRARIES})
 target_link_libraries(gtests.out pthread)
 target_link_libraries(gtests.out naive_library)
-target_link_libraries(gtests.out parallel_library)
+target_link_libraries(gtests.out parallel_library ${CMAKE_DL_LIBS})

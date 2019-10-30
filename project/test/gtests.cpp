@@ -9,7 +9,7 @@ extern "C" {
     #include "parallel.h"
 }
 
-void compare_algorithms(size_t cols, const std::string file_name) {
+void compare_algorithms(size_t cols, const std::string & file_name) {
     using namespace std::chrono;
 
     unsigned int time1 = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
@@ -30,6 +30,8 @@ void compare_algorithms(size_t cols, const std::string file_name) {
             GTEST_FAIL() << "Elements differ more then epsilon";
         }
     }
+    free(sum_vector_naive);
+    free(sum_vector_parallel);
 }
 
 // case 1 8x8
@@ -41,7 +43,7 @@ TEST(matrix_col_sum, compare1) {
 // case 2 10000x5000  (GitHub reject files > 100 Mb)
 // TEST(matrix_col_sum, compare2) {
 //     std::cout << "Case 2, matrix 10000x5000" << std::endl;
-//     compare_algorithms(5000, "project/test/data/ingitnopush2.txt");
+//     compare_algorithms(5000, "project/test/data/in2gitnopush.txt");
 // }
 
 // case 3 1500x1193

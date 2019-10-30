@@ -1,6 +1,6 @@
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
@@ -25,7 +25,7 @@ double * parallel_sum_calculation(const char * filename) {
         return NULL;
     }
 
-    const int process_number = 3;
+    const int process_number = 4;
     int n_per_poroc = rows / process_number;
     int last = rows % process_number;
 
