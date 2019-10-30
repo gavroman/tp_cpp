@@ -1,0 +1,38 @@
+dist:     alpine
+sudo:     required
+
+language: c
+
+os: linux
+
+compiler: gcc
+
+env:
+  global:
+    - CODECOV_TOKEN="88827976-c055-47f5-8335-5ff14fada8d3"
+
+install:
+    - sudo apt-get update
+    - sudo apt-get install cmake
+    - sudo apt-get install lcov
+    - sudo apt-get install valgrind
+    # Google tests
+    - sudo apt-get install libgtest-dev
+    - cd /usr/src/gtest
+    - sudo cmake .
+    - sudo make
+    - sudo cp *.a /usr/lib
+
+before_script:
+    - cd /home/travis/build/gavroman/tp_cpp
+    - ./3rdparty/linters/run.sh || travis_terminate 1;
+
+script:
+    - cmake . || travis_terminate 1;
+    - make || travis_terminate 1;
+    - ./gtests.out || travis_terminate 1;
+    - valgrind ./gtests.out || travis_terminate 1;
+
+after_script:
+    - lcov --capture --directory ./CMakeFiles/naive_library.dir/project/naive --directory CMakeFiles/parallel_library.dir/project/parallel --output-file coverage.info
+    - bash <(curl -s https://codecov.io/bash)
